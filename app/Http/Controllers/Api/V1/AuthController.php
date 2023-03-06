@@ -29,7 +29,8 @@ class AuthController extends Controller
         $credentials = $request->only(['email', 'password']);
         if(Auth::attempt($credentials)) {
             $user = $request->user();
-            $tokenData = $user->createToken($user->email.'-'.now());
+            $permissions = self::setPermissions($user->role->name);
+            $tokenData = $user->createToken($user->email.'-'.now(), $permissions);
             $token = $tokenData->token;
             
             if($request->remember_me) {
@@ -42,6 +43,7 @@ class AuthController extends Controller
                     'user' => $user,
                     'token_type' => 'Bearer',
                     'access_token' => $tokenData->accessToken,
+                    'token_scope' => $token->scopes,
                     'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString()
                 ], 200);
             } 
@@ -49,6 +51,17 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Fail'
         ], 500);
+    }
+
+    public function setPermissions($role) {
+        switch($role) {
+            case 'admin':
+                return ['operator', 'admin'];
+                break;
+            case 'operator':
+                return ['operator'];
+                break;
+        }
     }
 
     public function profile(Request $request) {

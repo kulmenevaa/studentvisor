@@ -19,7 +19,8 @@ class ProfileResource extends JsonResource
             'name'          => $this->name,
             'patronymic'    => $this->patronymic,
             'email'         => $this->email,
-            'settings'      => $this->settings
+            'settings'      => $this->settings,
+            'role'          => $this->role
         ];
     }
 }

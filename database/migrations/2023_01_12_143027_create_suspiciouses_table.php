@@ -13,12 +13,13 @@ class CreateSuspiciousesTable extends Migration
      */
     public function up()
     {
-        Schema::create('suspiciouses', function (Blueprint $table) {
+        Schema::connection('mysql')->create('suspicious', function (Blueprint $table) {
             $table->id();
             $table->string('ip');
             $table->string('place')->nullable();
             $table->text('desc')->nullable();
-            $table->boolean('check')->nullable();
+            $table->boolean('check')->default(0);
+            $table->string('type')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ class CreateSuspiciousesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('suspiciouses');
+        Schema::dropIfExists('suspicious');
     }
 }

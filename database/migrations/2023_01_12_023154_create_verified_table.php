@@ -13,7 +13,7 @@ class CreateVerifiedTable extends Migration
      */
     public function up()
     {
-        Schema::create('verified', function (Blueprint $table) {
+        Schema::connection('mysql')->create('verified', function (Blueprint $table) {
             $table->id();
             $table->string('ip');
             $table->text('desc')->nullable();

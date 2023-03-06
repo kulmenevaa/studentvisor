@@ -7,8 +7,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         isLoggedIn: null,
-        apiURL: 'https://studentvisor.tusur.ru/api/v1',
-        serverPath: 'https://studentvisor.tusur.ru',
+        apiURL: '/api/v1',
+        serverPath: '/',
         profile: false
     },
     mutations: {

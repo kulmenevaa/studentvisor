@@ -14,18 +14,25 @@ export function getPlunkList(period) {
     })
 }
 
+export function getAuthList(period) {
+    return http().get(alias + 'auth?period=' + period).then(response => {
+        return response.data
+    })
+}
+
 export function getAuthReports(data) {
     return http().get(alias + 'reports', {params: data}).then(response => {
         return response.data
     })
 }
 
-export function getFindStatisticsList(type, ip, period) {
+export function getFindStatisticsList(type, ip, user, period) {
     return http().get(alias + 'item', {
         params:{
             type:type,
             period:period,
-            ip:ip
+            ip:ip, 
+            user:user,
         }
     }).then(response => {
         return response.data
@@ -37,7 +44,7 @@ export function getGroupItemStatisticsList(type, ip, period) {
         params:{
             type:type,
             period:period,
-            ip:ip
+            ip:ip,
         }
     }).then(response => {
         return response.data

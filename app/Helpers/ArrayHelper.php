@@ -42,7 +42,7 @@ class ArrayHelper
         return $data;
     }
 
-    public function betweenDates($record, $ip, $settings)
+    public function betweenDates($record, $ip, $user, $settings)
     {
         $data = [];
         $array = [];
@@ -61,6 +61,7 @@ class ArrayHelper
             if(in_array($item, $data)) {
                 $array[] = [
                     'ip'        => $item->ip,
+                    'user'      => $item->user,
                     'date'      => $item->date,
                     'user'      => $item->user,
                     'category'  => $item->category,
@@ -70,11 +71,12 @@ class ArrayHelper
         }
         if(count($array) >= $settings->amount) {
             $result = [
-                'ip'    => $ip,         
+                'ip'    => $ip,  
+                'user'  => $user,
                 'place' => LocationHelper::place($ip), 
                 'count' => count($array), // количество авторизаций
-                'array' => $array,
-                'type'  => $settings->type
+                'type'  => $settings->type,
+                'array' => $array
             ];
         }
         return $result;

@@ -73,7 +73,7 @@ class StatisticAction
                     ->whereBetween('date', $period)
                     ->orderBy('date', 'asc')
                     ->get();
-                $item = ArrayHelper::betweenDates($record, $unique->ip, $settings);
+                $item = ArrayHelper::betweenDates($record, $unique->ip, null, $settings);
                 if(!empty($item)) {
                     $array[] = $item;
                 } 
@@ -95,7 +95,7 @@ class StatisticAction
                     $query->where([['action', 'login'], ['result', 'ok']]);
                     $query->whereNotIn('ip', $this->ip_verified);
                     $query->whereBetween('date', $period);
-                    $verified =  ArrayHelper::verifiedList($this->ip_verified);
+                    $verified = ArrayHelper::verifiedList($this->ip_verified);
                     if(!empty($verified)) {
                         $query->whereRaw($verified);
                     }
@@ -110,7 +110,7 @@ class StatisticAction
                     ->whereBetween('date', $period)
                     ->orderBy('date', 'asc')
                     ->get();
-                $item = ArrayHelper::betweenDates($record, $unique->ip, $settings);
+                $item = ArrayHelper::betweenDates($record, $unique->ip, null, $settings);
                 if(!empty($item)) {
                     $array[] = $item;
                 } 
@@ -120,12 +120,54 @@ class StatisticAction
         return $plunk;
     }
 
+    public function getAuth($request, $type) 
+    {
+        $settings = self::getSettings($type);
+        $name = self::generateName($request, $settings, $type);
+        $period = PeriodHelper::set($request->period);
+        $auth = Cache::store('redis')->remember($name, $this->cache_expiration, function() use ($period, $settings) {
+            $array = [];
+            $unique_user = Statistic::selectRaw('user, count(distinct ip) as count')
+                ->where(function($query) use ($period) {
+                    $query->where([['action', 'login'], ['result', 'ok']]);
+                    $query->whereNotIn('ip', $this->ip_verified);
+                    $query->whereBetween('date', $period);
+                    $verified = ArrayHelper::verifiedList($this->ip_verified);
+                    if(!empty($verified)) {
+                        $query->whereRaw($verified);
+                    }
+                })
+                ->groupBy('user')
+                ->havingRaw('count(distinct ip) >= '.$settings->amount)
+                ->orderBy('count', 'desc')
+                ->get();
+            foreach($unique_user as $unique) {
+                $record = Statistic::selectRaw('user, date, ip, category, info')
+                    ->where([['action', 'login'], ['result', 'ok'], ['user', $unique->user]])
+                    ->whereBetween('date', $period)
+                    ->groupBy('ip')
+                    ->orderBy('date', 'asc')
+                    ->get();
+                $item = ArrayHelper::betweenDates($record, null, $unique->user, $settings);
+                if(!empty($item)) {
+                    $array[] = $item;
+                } 
+            }
+            return ArrayHelper::sortByCount($array);
+        });
+        return $auth;
+    }
+
     public function getItem($request)
     {
         $settings = self::getSettings($request->type);
         $name = self::generateName($request, $settings, $request->type);
         $array = Cache::store('redis')->get($name);
-        $key = array_search($request->ip, array_column($array, 'ip'));
+        if($request->ip) {
+            $key = array_search($request->ip, array_column($array, 'ip'));
+        } elseif($request->user) {
+            $key = array_search($request->user, array_column($array, 'user'));
+        }
         return $array[$key];
     }
 
@@ -150,6 +192,7 @@ class StatisticAction
             $request->period = $period;
             $plunk = self::getPlunk($request, 'plunk');
             $breaking = self::getBreaking($request, 'breaking');
+            $auth = self::getAuth($request, 'auth');
         }
         $array = array_merge($plunk, $breaking);
         foreach($array as $item) {

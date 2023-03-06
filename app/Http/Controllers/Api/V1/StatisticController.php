@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use Carbon\Carbon;
+use App\Models\Statistic;
 use Illuminate\Http\Request;
 use App\Actions\StatisticAction;
 use App\Http\Controllers\Controller;
@@ -33,6 +34,17 @@ class StatisticController extends Controller
         return response()->json([
             'array' => $plunk, 
             'count' => count($plunk),
+            'type'  => $type
+        ], 200);
+    }
+
+    public function auth(Request $request)
+    {
+        $type = 'auth';
+        $auth = $this->action->getAuth($request, $type);
+        return response()->json([
+            'array' => $auth,
+            'count' => count($auth),
             'type'  => $type
         ], 200);
     }
@@ -71,4 +83,12 @@ class StatisticController extends Controller
     public function replication(Request $request) {
         $item = $this->action->getReplication($request);
     }
+
+
+
+    /*
+    $st = new Statistic;
+    $st->setTable('test');
+    echo $st->getTable();
+    */
 }

@@ -13,8 +13,16 @@ class CreateSettingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('settings', function (Blueprint $table) {
+        Schema::connection('mysql')->create('settings', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->string('name');
+            $table->boolean('status')->default(0);
+            $table->string('amount')->nullable();
+            $table->string('action')->nullable();
+            $table->string('metering')->nullable();
+            $table->string('type');
             $table->timestamps();
         });
     }

@@ -35,7 +35,7 @@
                 <v-collapse-wrapper ref="auth" :active="true">
                     <hr>
                     <div class="row mb-4" v-collapse-content>
-                        <div class="col-md-6 settings-item" v-if="breakingList">
+                        <div class="col-xl-4 col-md-6 settings-item" v-if="breakingList">
                             <fieldset>
                                 <legend>Попытки взлома аккаунта студента</legend>
                                 <div v-if="loading_breaking" class="loading">
@@ -49,14 +49,14 @@
                                     <div class="card">
                                         <div class="card-content between" v-for="(item, index) in breakingList.array">
                                             <!-- :class="{'suspicious':item.suspicious}" -->
-                                            <p>{{ item.ip }} - {{ item.place }} (Неудачных попыток: {{ item.count }})</p>
+                                            <p>{{ item.ip }} {{ setPlace(item.place) }} (Попыток: {{ item.count }})</p>
                                             <button @click="redirectReports(item, breakingList.type)" class="btn btn-primary"><i class='bx bx-right-arrow-alt'></i></button>
                                         </div>
                                     </div>
                                 </div>
                             </fieldset>
                         </div>
-                        <div class="col-md-6 settings-item" v-if="plunkList">
+                        <div class="col-xl-4 col-md-6 settings-item" v-if="plunkList">
                             <fieldset>
                                 <legend>Перебор аккаунтов студентов</legend>
                                 <div v-if="loading_plunk" class="loading">
@@ -70,8 +70,29 @@
                                     <div class="card">
                                         <div class="card-content between" v-for="(item, index) in plunkList.array">
                                             <!-- :class="{'suspicious':item.suspicious}" -->
-                                            <p>{{ item.ip }} - {{ item.place }} (Авторизаций: {{ item.count }})</p>
+                                            <p>{{ item.ip }} {{ setPlace(item.place) }} (Входов: {{ item.count }})</p>
                                             <button @click="redirectReports(item, plunkList.type)" class="btn btn-primary"><i class='bx bx-right-arrow-alt'></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                        <div class="col-xl-4 col-md-6 settings-item" v-if="authList">
+                            <fieldset>
+                                <legend>Множественный вход</legend>
+                                <div v-if="loading_auth" class="loading">
+                                    <img :src="'/public/img/load.gif'">
+                                </div>
+                                <div v-else>
+                                    <div class="between">
+                                        <span>Записей: {{ authList.count }}</span>
+                                    </div>
+                                    <hr>
+                                    <div class="card">
+                                        <div class="card-content between" v-for="(item, index) in authList.array">
+                                            <!-- :class="{'suspicious':item.suspicious}" -->
+                                            <p>{{ item.user }} (Входов: {{ item.count }})</p>
+                                            <button @click="redirectReports(item, authList.type)" class="btn btn-primary"><i class='bx bx-right-arrow-alt'></i></button>
                                         </div>
                                     </div>
                                 </div>
@@ -108,14 +129,17 @@
             return {
                 loading_breaking: false,
                 loading_plunk: false,
+                loading_auth: false,
                 period: 'today',
                 breakingList: [],
                 plunkList: [],
+                authList: [],
             }
         },
         created() {
             this.getBreaking()
             this.getPlunk()
+            this.getAuth()
         },
         mounted() {
             if(localStorage.period) 
@@ -146,11 +170,30 @@
                     })
                 }, 100)
             },
+            getAuth() {
+                this.loading_auth = true
+                setTimeout(() => {
+                    statistics.getAuthList(this.period).then(response => {
+                        this.loading_auth = false
+                        this.authList = response
+                    }).catch(errors => {
+                        this.loading_auth = false
+                        this.$toast.error(errors.response.data.message)
+                    })
+                }, 100)
+            },
             sortByDate(period) {
                 this.period = period
                 localStorage.period = this.period
                 this.getBreaking()
                 this.getPlunk()
+                this.getAuth()
+            },
+            setPlace(place) {
+                if(place !== false) {
+                    return '-' + place
+                }
+                return null
             },
             redirectReports(item, type) {
                 this.$router.push({
@@ -159,6 +202,7 @@
                         type: type,
                         period: this.period,
                         ip: item.ip,
+                        user: item.user
                     }
                 })
             }

@@ -26,11 +26,9 @@
                                     <div>{{ $store.state.profile.email }}</div>
                                 </div>
                                 <ul>
-                                    <!--
-                                    <li>
-                                        <router-link :to="{name:'notification'}">Уведомления</router-link>
+                                    <li v-if="$store.state.profile.role.name == 'admin'">
+                                        <router-link :to="{name:'control'}">Управление</router-link>
                                     </li>
-                                    -->
                                     <li>
                                         <button type="button" @click="logout">Выйти</button>
                                     </li>
@@ -653,6 +651,9 @@
         form .fields-group > :not([hidden]) ~ :not([hidden]) {
             margin-left: 0;
             margin-right: 0;
+        }
+        header .nav-top .container .logo img {
+            width: 14rem;
         }
     }
     .mobile-menu {

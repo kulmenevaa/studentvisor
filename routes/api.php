@@ -51,6 +51,7 @@ Route::group([
     ], function() {
         Route::get('/breaking', 'breaking');
         Route::get('/plunk', 'plunk');
+        Route::get('/auth', 'auth');
         Route::get('/statistics', 'index');
         Route::get('/reports', 'reports');
         Route::get('/item', 'item');

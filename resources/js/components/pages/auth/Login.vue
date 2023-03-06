@@ -27,6 +27,13 @@
     const formData = {email: '', password: '', remember_me: false}
     export default {
         name: 'Login',
+        metaInfo: {
+            title: 'Вход',
+            meta: [
+                { name:'keywords', content: '' },
+                { name:'description', content: '' },
+            ]
+        },
         data() {
             return {
                 form: Object.assign({}, formData),
@@ -71,6 +78,7 @@
                     this.errors = false
                     this.form = Object.assign({}, formData)
                     this.$router.push({name:'home'})
+                    console.log(response)
                 }).catch(errors => {
                     this.errorsSwitch(errors)
                 })

@@ -34,3 +34,12 @@ export function getAccessToken() {
     const tokenData = JSON.parse(token)
     return tokenData.access_token
 }
+
+export function getUserRole() {
+    const token = localStorage.getItem('auth-token')
+    if(!token) {
+        return null
+    }
+    const tokenData = JSON.parse(token)
+    return tokenData.user.role.name
+}

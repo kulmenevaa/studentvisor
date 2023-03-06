@@ -28,6 +28,8 @@ import Scenario from './components/pages/settings/Scenario'
 
 import Login from './components/pages/auth/Login'
 
+import Control from './components/pages/admin/Index'
+
 import NotFound from './components/pages/errors/404'
 
 const routes = [
@@ -54,7 +56,7 @@ const routes = [
         path: '/suspicious',
         name: 'suspicious',
         component: Suspicious,
-        meta: { requiresAuth: true }
+        meta: { requiresAuth: true },
     },
     {
         path: '/reports',
@@ -112,6 +114,19 @@ const routes = [
         }
     },
     {
+        path: '/control',
+        name: 'control',
+        component: Control,
+        meta: { requiresAuth: true },
+        beforeEnter(to, from, next) {
+            if(auth.getUserRole() === 'admin') {
+                next();
+            } else {
+                next('/404')
+            }
+        }
+    },
+    {
         path: '*',
         name: '404',
         component: NotFound
@@ -128,7 +143,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
     if(to.meta.requiresAuth && !auth.isLoggedIn()) {
         return next({name:'login'})
-    } 
+    }
     return next()
 })
 
