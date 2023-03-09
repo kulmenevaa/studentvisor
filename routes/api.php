@@ -37,12 +37,18 @@ Route::group([
     });
 });
 
-//Route::group(['middleware' => 'auth:api'], function() {
+Route::group(['middleware' => 'auth:api'], function() {
     Route::group([
         'controller' => SettingsController::class
     ], function() {
         Route::get('/settings', 'index');
         Route::post('/settings', 'save');
+    });
+
+    Route::group([
+        'controller' => Admin\RoleController::class
+    ], function() {
+        Route::get('/roles', 'index');
     });
     
     Route::group([
@@ -61,5 +67,6 @@ Route::group([
     Route::apiResources([
         'verified' => VerifiedController::class,
         'suspicious' => SuspiciousController::class,
+        'users' => Admin\UserController::class
     ]);
-//});
+});

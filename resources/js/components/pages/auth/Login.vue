@@ -78,7 +78,6 @@
                     this.errors = false
                     this.form = Object.assign({}, formData)
                     this.$router.push({name:'home'})
-                    console.log(response)
                 }).catch(errors => {
                     this.errorsSwitch(errors)
                 })

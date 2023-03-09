@@ -29,6 +29,7 @@ import Scenario from './components/pages/settings/Scenario'
 import Login from './components/pages/auth/Login'
 
 import Control from './components/pages/admin/Index'
+import Users from './components/pages/admin/Users.vue'
 
 import NotFound from './components/pages/errors/404'
 
@@ -118,13 +119,22 @@ const routes = [
         name: 'control',
         component: Control,
         meta: { requiresAuth: true },
-        beforeEnter(to, from, next) {
-            if(auth.getUserRole() === 'admin') {
-                next();
-            } else {
-                next('/404')
+        children: [
+            {
+                path: 'users',
+                name: 'control.users',
+                component: Users,
+                meta: { requiresAuth: true },
+                beforeEnter(to, from, next) {
+                    if(auth.getUserRole() === 'admin') {
+                        next();
+                    } else {
+                        next('/404')
+                    }
+                },
             }
-        }
+        ],
+
     },
     {
         path: '*',
